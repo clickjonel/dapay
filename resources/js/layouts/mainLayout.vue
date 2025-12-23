@@ -93,12 +93,28 @@
                 },
             ]
         },
+
+        {
+            label: 'Indicators',
+            key:'Indicators',
+            items:[
+                {
+                    label: 'Organizational',
+                    command: () => router.visit('/indicator/organizational'),
+                },
+                {
+                    label: 'Program',
+                    command: () => router.visit('/indicator/program'),
+                },
+            ]
+        },
     ]
 
     const expandedKeys = ref({
         'Programs': true,
         'Barangays': true,
-        'Provinces': true
+        'Provinces': true,
+        'Indicators':true
     });
 
 

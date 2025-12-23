@@ -8,6 +8,7 @@ import PrimeVue from 'primevue/config';
 import Aura from '@primeuix/themes/aura';
 import Material from '@primeuix/themes/material';
 import 'primeicons/primeicons.css';
+import Tooltip from 'primevue/tooltip';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -22,10 +23,11 @@ createInertiaApp({
                     preset: Material
                 }
             })
+            .directive('tooltip', Tooltip)
             .mount(el);
     },
     progress: {
         color: '#4682B4',
-        showSpinner:true
+        showSpinner:false
     },
 });

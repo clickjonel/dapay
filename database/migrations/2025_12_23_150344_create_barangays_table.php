@@ -1,0 +1,50 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('barangays', function (Blueprint $table) {
+           // details
+            $table->foreignId('province_id')->constrained('provinces','id');
+            $table->foreignId('municipality_id')->constrained('municipalities','id');
+            $table->string('name');
+
+            //pk statuses
+            $table->string('pk_status');
+            $table->boolean('is_gida')->nullable();
+            $table->boolean('is_pk_site');
+            $table->integer('deployed_hrh')->nullable();
+
+            //geolocation details
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
+
+            //baseline totals
+            $table->integer('total_purok')->nullable();
+            $table->integer('target_purok')->nullable();
+            $table->integer('target_households')->nullable();
+            $table->integer('target_individuals')->nullable();
+
+            //activity totals
+            // $table->integer('total_lsa_conducted')->nullable();//large scale activity
+            // $table->integer('total_ssa_conducted')->nullable();//small scale activity
+
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('barangays');
+    }
+};
