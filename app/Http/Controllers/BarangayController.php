@@ -3,16 +3,38 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barangay;
+use App\Models\OrganizationalIndicators;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class BarangayController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $barangays = Barangay::with(['province', 'municipality','organizationalIndicators'])
+        ->when($request->input('search'), function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                    ->orWhereHas('province', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    })
+                    ->orWhereHas('municipality', function ($q) use ($search) {
+                        $q->where('name', 'like', "%{$search}%");
+                    });
+            });
+        })
+        ->simplePaginate(50)
+        ->withQueryString();
+
+        $organizational_indicators = OrganizationalIndicators::get();
+
+        return Inertia::render('barangay/index',[
+            'barangays' => $barangays,
+            'organizational_indicators' => $organizational_indicators
+        ]);
     }
 
     /**
@@ -20,7 +42,7 @@ class BarangayController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**
@@ -52,7 +74,7 @@ class BarangayController extends Controller
      */
     public function update(Request $request, Barangay $barangay)
     {
-        //
+        Barangay::find($barangay->id)->update($request->all());
     }
 
     /**

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('barangays', function (Blueprint $table) {
+            $table->id();
            // details
             $table->foreignId('province_id')->constrained('provinces','id');
             $table->foreignId('municipality_id')->constrained('municipalities','id');
@@ -33,11 +34,8 @@ return new class extends Migration
             $table->integer('target_households')->nullable();
             $table->integer('target_individuals')->nullable();
 
-            //activity totals
-            // $table->integer('total_lsa_conducted')->nullable();//large scale activity
-            // $table->integer('total_ssa_conducted')->nullable();//small scale activity
-
         });
+
     }
 
     /**

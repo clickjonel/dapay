@@ -63,6 +63,15 @@ return [
             ]) : [],
         ],
 
+        'dohis' => [
+            'driver' => 'mysql',
+            'host' => env('DOHIS_HOST'),
+            'port' => env('DOHIS_PORT'),
+            'database' => env('DOHIS_DATABASE'),
+            'username' => env('DOHIS_USERNAME'),
+            'password' => env('DOHIS_PASSWORD'),
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),

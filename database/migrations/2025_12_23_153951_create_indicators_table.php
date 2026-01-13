@@ -29,6 +29,14 @@ return new class extends Migration
             $table->foreignId('program_indicator_id')->constrained('program_indicators','id');
             $table->foreignId('disaggregation_id')->constrained('disaggregations','id');
         });
+
+        Schema::create('barangay_org_indicators', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('barangay_id')->constrained('barangays','id');
+            $table->foreignId('organizational_indicator_id')->constrained('organizational_indicators','id');
+            $table->integer('value');
+            $table->text('remarks')->nullable();
+        });
     }
 
     /**

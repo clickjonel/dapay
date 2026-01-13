@@ -24,4 +24,10 @@ export default defineConfig({
             formVariants: true,
         }),
     ],
+    server: {
+        host: '0.0.0.0',
+        hmr: {
+            host: '192.168.225.248', // Your local IP address
+        },
+    },
 });

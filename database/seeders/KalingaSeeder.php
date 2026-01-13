@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Barangay;
-use App\Models\Municipality;
 use App\Models\Report;
 use App\Models\ReportValue;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -11,14 +10,14 @@ use Illuminate\Database\Seeder;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Csv as CsvWriter;
 
-class BenguetSeeder extends Seeder
+class KalingaSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $path = storage_path('app/dapay-benguet.csv');
+         $path = storage_path('app/dapay-kalinga.csv');
         $file = fopen($path, 'r');
         
         $headers = fgetcsv($file); // Get headers
@@ -174,8 +173,5 @@ class BenguetSeeder extends Seeder
 
 
         }
-
-
-
     }
 }

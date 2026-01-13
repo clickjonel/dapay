@@ -53,4 +53,30 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    protected $appends = ['full_name'];
+
+    public function getFullNameAttribute()
+    {
+        $fullName = '';
+
+        if ($this->prefix) {
+            $fullName .= $this->prefix . ' ';
+        }
+
+        $fullName .= $this->first_name . ' ';
+
+        if ($this->middle_name) {
+            $fullName .= $this->middle_name[0] . '. ';
+        }
+
+        $fullName .= $this->last_name;
+
+        if ($this->suffix) {
+            $fullName .= ', ' . $this->suffix;
+        }
+
+        return trim($fullName);
+    }
+
 }

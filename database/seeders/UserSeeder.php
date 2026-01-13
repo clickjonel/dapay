@@ -130,5 +130,8 @@ class UserSeeder extends Seeder
             'user_level' => 3,
             'pdoho_province_id' => 6
         ]);
+
+        
+
     }
 }

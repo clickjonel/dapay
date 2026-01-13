@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\Program;
 use App\Models\SubProgram;
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -117,12 +118,37 @@ class ProgramSeeder extends Seeder
                     ],
                 ]
             ],
+            [
+                'name' => 'Health Promotion Program',
+                'active' => true,
+                'sub_programs' => [
+                    [
+                        'name' => 'Health Promotion Program',
+                        'active' => true,
+                    ]
+                ]
+            ],
         ];
 
         foreach($programs as $program){
             $programCreated = Program::create([
                 'name' => $program['name'],
                 'active' => $program['active'],  
+            ]);
+
+            User::create([
+                'username' => 'program',
+                'password' => '12345',
+                'first_name' => 'Program',
+                'middle_name' => ' - ',
+                'last_name' => $program['name'],
+                'suffix' => null,
+                'prefix' => null,
+                'nickname' => $program['name'],
+                'account_status' => 'Active',
+                'user_level' => 7,
+                'pdoho_province_id' => null,
+                'program_id' => $programCreated->id
             ]);
 
             foreach($program['sub_programs'] as $sub){

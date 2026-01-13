@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Barangay;
-use App\Models\Municipality;
 use App\Models\Report;
 use App\Models\ReportValue;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
@@ -11,14 +10,14 @@ use Illuminate\Database\Seeder;
 use PhpOffice\PhpSpreadsheet\Reader\Csv;
 use PhpOffice\PhpSpreadsheet\Writer\Csv as CsvWriter;
 
-class BenguetSeeder extends Seeder
+class MPSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        $path = storage_path('app/dapay-benguet.csv');
+          $path = storage_path('app/dapay-mp.csv');
         $file = fopen($path, 'r');
         
         $headers = fgetcsv($file); // Get headers
@@ -37,7 +36,7 @@ class BenguetSeeder extends Seeder
                 'target_households' => (int)$row['target_households'],
                 'target_individuals' => (int)$row['target_individuals'],
                 'pk_status' => $row['pk_status'],
-                'is_pk_site' => trim($row['pk_status']) === 'Monitored PK Implementation' ? 1 : 0,
+                'is_pk_site' => $row['pk_status'] === 'Monitored PK Implementation' ? 1 : 0,
             ]);
 
             //report
@@ -174,8 +173,5 @@ class BenguetSeeder extends Seeder
 
 
         }
-
-
-
     }
 }

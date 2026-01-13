@@ -16,30 +16,6 @@ class IndicatorSeeder extends Seeder
     {
         $organizational_indicators = [
             [
-                'name' => 'Total no. of PK Sites in CAR',
-                'active' => true,
-            ],
-            [
-                'name' => 'Percentage of PK teams with Active PK Teams',
-                'active' => true,
-            ],
-            [
-                'name' => 'Percentage of PK Teams with Complete Kits',
-                'active' => true,
-            ],
-            [
-                'name' => 'Percentage of PK teams Trained/Oriented on PK',
-                'active' => true,
-            ],
-            [
-                'name' => 'Percent of Clients reached by Health Promotion Services',
-                'active' => true,
-            ],
-            [
-                'name' => 'Total Number of clients reached with direct Health Services',
-                'active' => true,
-            ],
-            [
                 'name' => 'Total Number of First Patient Encounters',
                 'active' => true,
             ], 

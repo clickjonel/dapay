@@ -14,4 +14,15 @@ class SubProgram extends Model
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    public function program()
+    {
+        return $this->belongsTo(Program::class,'program_id','id');
+    }
+
+    public function programIndicators()
+    {
+        return $this->hasMany(ProgramIndicators::class,'sub_program_id','id');
+    }
+
 }

@@ -9,6 +9,7 @@ import Aura from '@primeuix/themes/aura';
 import Material from '@primeuix/themes/material';
 import 'primeicons/primeicons.css';
 import Tooltip from 'primevue/tooltip';
+import ToastService from 'primevue/toastservice';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -20,9 +21,13 @@ createInertiaApp({
             .use(plugin)
             .use(PrimeVue, {
                 theme: {
-                    preset: Material
+                    preset: Material,
+                    options: {
+                        darkModeSelector: 'light',
+                    }
                 }
             })
+            .use(ToastService)
             .directive('tooltip', Tooltip)
             .mount(el);
     },

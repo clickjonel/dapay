@@ -16,9 +16,15 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             ProgramSeeder::class,
-            ProvinceSeeder::class,
+            GeolocationSeeder::class,
             DisaggregationSeeder::class,
-            IndicatorSeeder::class
+            IndicatorSeeder::class,
+            BenguetSeeder::class,
+            AbraSeeder::class,
+            ApayaoSeeder::class,
+            IfugaoSeeder::class,
+            KalingaSeeder::class,
+            MPSeeder::class,
         ]);
     }
 }

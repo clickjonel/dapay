@@ -72,7 +72,7 @@
                     <!-- Login Button -->
                     <Button 
                         type="submit"
-                        label="Login to LIMS" 
+                        label="Login to DAP-AY" 
                         icon="pi pi-sign-in"
                         class="w-full"
                         :loading="processing"
