@@ -15,6 +15,9 @@ class BarangayController extends Controller
     public function index(Request $request)
     {
         $barangays = Barangay::with(['province', 'municipality','organizationalIndicators'])
+        ->when($request->user()->pdoho_province_id !== null, function($query) use ($request){
+            $query->where('province_id', $request->user()->pdoho_province_id);
+        })
         ->when($request->input('search'), function ($query, $search) {
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")

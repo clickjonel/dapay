@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Disaggregation;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class DisaggregationController extends Controller
 {
@@ -12,7 +13,11 @@ class DisaggregationController extends Controller
      */
     public function index()
     {
-        //
+        $disaggregations = Disaggregation::get();
+
+        return Inertia::render('disaggregation/index',[
+            'disaggregations' => $disaggregations,
+        ]);
     }
 
     /**
@@ -28,7 +33,18 @@ class DisaggregationController extends Controller
      */
     public function store(Request $request)
     {
-        //
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'type' => 'required|string|max:255'
+            ]);
+
+            Disaggregation::create([
+                'name' => $validated['name'],
+                'type' => $validated['type'],
+                'active' => true
+            ]);
+
+            return back()->with('success', 'Disaggregation created successfully');
     }
 
     /**
@@ -52,7 +68,15 @@ class DisaggregationController extends Controller
      */
     public function update(Request $request, Disaggregation $disaggregation)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'type' => 'required|string|max:255'
+        ]);
+
+        $disaggregation = Disaggregation::findOrFail($disaggregation->id);
+        $disaggregation->update($validated);
+
+        return back()->with('success', 'Disaggregation updated successfully');
     }
 
     /**
@@ -60,6 +84,8 @@ class DisaggregationController extends Controller
      */
     public function destroy(Disaggregation $disaggregation)
     {
-        //
+        Disaggregation::find($disaggregation->id)->update(['active' => !$disaggregation->active]);
+
+        return back()->with('success', 'Status updated successfully');
     }
 }

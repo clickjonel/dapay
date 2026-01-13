@@ -107,11 +107,11 @@
                     command: () => router.visit('/barangay'),
                     access_levels: [1,2,3,4,5,6]
                 },
-                {
-                    label: 'PK Sites',
-                    access_levels: [1,2,3,4,5,6]
-                    //command: () => router.visit('/program/create'),
-                },
+                // {
+                //     label: 'PK Sites',
+                //     access_levels: [1,2,3,4,5,6]
+                //     //command: () => router.visit('/program/create'),
+                // },
                 // {
                 //     label: 'UUC',
                 //     access_levels: ['admin']
@@ -139,6 +139,19 @@
         },
 
         {
+            label: 'Disaggregations',
+            key:'Disaggregations',
+            access_levels: [1,2,7],
+            items:[
+                {
+                    label: 'Master List',
+                    command: () => router.visit('/disaggregation'),
+                    access_levels: [1,2,7]
+                },
+            ]
+        },
+
+        {
             label: 'Reports',
             key:'Reports',
             access_levels: [1,2,3,4,5,6],
@@ -160,7 +173,7 @@
 
     // Filter links based on user role
     const filteredLinks = computed(() => {
-        const access_level = user.value?.user_level; // Assuming user has a 'role' property
+        const access_level = user.value?.user_level; 
         
         if (!access_level) return [];
 
@@ -170,7 +183,7 @@
                 ...link,
                 items: link.items?.filter(item => item.access_levels?.includes(access_level))
             }))
-            .filter(link => link.items && link.items.length > 0); // Remove empty sections
+            .filter(link => link.items && link.items.length > 0);
     });
 
     const expandedKeys = ref({
@@ -179,6 +192,7 @@
         'Barangays': true,
         'Provinces': true,
         'Indicators':true,
+        'Disaggregations':true,
         'Reports':true
     });
 

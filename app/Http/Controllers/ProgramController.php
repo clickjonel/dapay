@@ -13,7 +13,7 @@ class ProgramController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         return Inertia::render('program/index',[
             'programs' => Program::with([

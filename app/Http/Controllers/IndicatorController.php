@@ -21,11 +21,20 @@ class IndicatorController extends Controller
         ]);
     }
 
-    public function programIndicatorsPage()
+    public function programIndicatorsPage(Request $request)
     {
-        $program_indicators = ProgramIndicators::with(['subProgram','disaggregations'])->get();
+        $program_indicators = ProgramIndicators::with(['subProgram','disaggregations'])
+                                                    ->when($request->user()->program_id !== null, function($query) use ($request) {
+                                                        $query->whereHas('subProgram', function($q) use ($request) {
+                                                            $q->where('program_id', $request->user()->program_id);
+                                                        });
+                                                    }) 
+                                                    ->get();
         $disaggregations = Disaggregation::where('active',true)->get()->groupBy('type');
-        $sub_programs = SubProgram::get();
+        $sub_programs = SubProgram::when($request->user()->program_id !== null, function($query) use ($request) {
+                                        $query->where('program_id', $request->user()->program_id);
+                                    }) 
+                                    ->get();
 
         return Inertia::render('indicators/programIndicators',[
             'program_indicators'=>$program_indicators,

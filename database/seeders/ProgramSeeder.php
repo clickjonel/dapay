@@ -19,6 +19,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Nutrition Program',
                 'active' => true,
+                'username' => 'program-nutrition',
                 'sub_programs' => [
                     [
                         'name' => 'Nutrition Program',
@@ -29,6 +30,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Immunization Program',
                 'active' => true,
+                'username' => 'program-immunization',
                 'sub_programs' => [
                     [
                         'name' => 'Immunization Program',
@@ -39,6 +41,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Water, Sanitation and Hygiene(WASH) Program',
                 'active' => true,
+                'username' => 'program-wash',
                 'sub_programs' => [
                     [
                         'name' => 'Water, Sanitation and Hygiene(WASH) Program',
@@ -49,6 +52,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Tuberculosis Program',
                 'active' => true,
+                'username' => 'program-tb',
                 'sub_programs' => [
                     [
                         'name' => 'Tuberculosis Program',
@@ -59,6 +63,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'HIV and AIDS Program',
                 'active' => true,
+                'username' => 'program-hiv-aids',
                 'sub_programs' => [
                     [
                         'name' => 'HIV and AIDS Program',
@@ -69,6 +74,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Road Safety Program',
                 'active' => true,
+                'username' => 'program-road-safety',
                 'sub_programs' => [
                     [
                         'name' => 'Road Safety Program',
@@ -79,6 +85,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Maternal Health Program',
                 'active' => true,
+                'username' => 'program-maternal-health',
                 'sub_programs' => [
                     [
                         'name' => 'Maternal Health Program',
@@ -89,6 +96,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Mental Health Program',
                 'active' => true,
+                'username' => 'program-mental-health',
                 'sub_programs' => [
                     [
                         'name' => 'Mental Health Program',
@@ -99,6 +107,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Non-Communicable Diseases Program',
                 'active' => true,
+                'username' => 'program-ncd',
                 'sub_programs' => [
                     [
                         'name' => 'Diabetes Program',
@@ -121,6 +130,7 @@ class ProgramSeeder extends Seeder
             [
                 'name' => 'Health Promotion Program',
                 'active' => true,
+                'username' => 'program-health-promotion',
                 'sub_programs' => [
                     [
                         'name' => 'Health Promotion Program',
@@ -137,7 +147,7 @@ class ProgramSeeder extends Seeder
             ]);
 
             User::create([
-                'username' => 'program',
+                'username' => $program['username'],
                 'password' => '12345',
                 'first_name' => 'Program',
                 'middle_name' => ' - ',

@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BarangayController;
 use App\Http\Controllers\BarangayOrganizationalIndicatorsController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DisaggregationController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ReportController;
@@ -27,6 +28,7 @@ Route::middleware(['web','auth'])->group(function () {
         
     Route::resource('program', ProgramController::class);
     Route::resource('barangay', BarangayController::class);
+    Route::resource('disaggregation', DisaggregationController::class);
 
     Route::get('/indicator/organizational',[IndicatorController::class,'organizationalIndicatorsPage']);
     Route::get('/indicator/program',[IndicatorController::class,'programIndicatorsPage']);
