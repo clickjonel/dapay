@@ -124,16 +124,26 @@ class IndicatorController extends Controller
     public function setProgramIndicatorDisaggregations(Request $request, $id){
         $validated = $request->validate([
             'disaggregations' => 'nullable|array',
+            'disaggregations.*.disaggregation_id' => 'required|integer|exists:disaggregations,id',
+            'disaggregations.*.totalable' => 'required|boolean',
         ]);
 
-       $indicator = ProgramIndicators::findOrFail($id);
+        $indicator = ProgramIndicators::findOrFail($id);
 
-        // If empty or not sent, this will DETACH all
-        $indicator->disaggregations()->sync(
-            $validated['disaggregations'] ?? []
-        );
+        // Build array for sync() with pivot data
+        $syncData = [];
+        if (!empty($validated['disaggregations'])) {
+            foreach ($validated['disaggregations'] as $disagg) {
+                $syncData[$disagg['disaggregation_id']] = [
+                    'totalable' => $disagg['totalable'] ? 1 : 0
+                ];
+            }
+        }
 
-        return back()->with('success', 'Indicator disaggregations Synced');
+        // Sync disaggregations with totalable flag
+        $indicator->disaggregations()->sync($syncData);
+
+        return back()->with('success', 'Indicator disaggregations synced successfully.');
     
     }
 

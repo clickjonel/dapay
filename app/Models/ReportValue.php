@@ -30,4 +30,9 @@ class ReportValue extends Model
         return $this->belongsTo(ProgramIndicators::class,'program_indicator_id','id');
     }
 
+    public function disaggregation()
+    {
+        return $this->belongsTo(Disaggregation::class,'disaggregation_id','id');
+    }
+
 }

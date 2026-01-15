@@ -59,8 +59,20 @@
                     </div>
 
                     <!-- Disaggregations -->
-                    <div class="col-span-2 flex flex-col items-start gap-1">
-                        <span v-for="dis in indicator.disaggregations" class="text-sm bg-gray-200 px-4 rounded-full">{{ dis.name }}</span>
+                    <div class="col-span-2 flex flex-wrap items-start gap-1">
+                        <span 
+                            v-for="dis in indicator.disaggregations" 
+                            :key="dis.id"
+                            class="text-xs px-2 py-0.5 rounded-full flex items-center gap-1"
+                            :class="dis.pivot?.totalable ? 'bg-blue-100 text-blue-700' : 'bg-gray-200 text-gray-700'"
+                        >
+                            {{ dis.name }}
+                            <i 
+                                v-if="dis.pivot?.totalable" 
+                                class="pi pi-calculator text-[10px]"
+                                v-tooltip.top="'Included in totals'"
+                            ></i>
+                        </span>
                     </div>
 
                     <!-- Actions -->
@@ -138,48 +150,73 @@
             v-model:visible="disaggregationDialog" 
             modal 
             header="Set Disaggregations"
-            :style="{ width: '70vw' }"
+            :style="{ width: '80vw' }"
         >
             <div v-if="selectedIndicator" class="flex flex-col gap-4">
                 <div class="font-medium uppercase underline text-base">
                     Indicator: {{ selectedIndicator.name }}
                 </div>
-                
-                <div class="flex flex-col gap-4 max-h-[60vh] overflow-y-auto pr-2">
-                    <div 
-                        v-for="(items, type) in disaggregations" 
-                        :key="type"
-                        class="flex flex-col gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200"
-                    >
-                        <div class="font-semibold text-sm text-gray-800 uppercase tracking-wide">
-                            {{ type }}
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-3 ml-2">
-                            <div 
-                                v-for="item in items" 
-                                :key="item.id"
-                                class="flex items-center gap-2 hover:bg-gray-100 p-2 rounded transition-colors"
-                            >
-                                <Checkbox 
-                                    v-model="selectedDisaggregations"
-                                    :inputId="`disagg-${item.id}`"
-                                    :value="item.id"
-                                />
-                                <label 
-                                    :for="`disagg-${item.id}`" 
-                                    class="text-sm cursor-pointer select-none"
-                                >
-                                    {{ item.name }}
-                                </label>
-                            </div>
+
+                <!-- Info Banner -->
+                <div class="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div class="flex items-start gap-2">
+                        <i class="pi pi-info-circle text-blue-600 text-sm mt-0.5"></i>
+                        <div class="text-xs text-blue-800">
+                            <p class="font-semibold mb-1">Configure Disaggregations</p>
+                            <p>Select disaggregations and mark which ones should be included in total calculations. For example: "Male" and "Female" should be included, but "4Ps Beneficiary" should not (to avoid double counting).</p>
                         </div>
                     </div>
                 </div>
                 
-                <small v-if="disaggregationErrors.disaggregations" class="text-red-500 mt-2">
-                    {{ disaggregationErrors.disaggregations }}
-                </small>
+                <div class="flex flex-col gap-4">
+                    <div 
+                            v-for="(disaggregationGroupArray, groupName) in disaggregations" 
+                            :key="groupName"
+                            class="w-full flex flex-col gap-2 rounded-lg border border-gray-200 p-2 shadow-md"
+                        >
+                            <span class="w-full px-2 text-base uppercase font-bold border-b border-gray-200">
+                                {{ groupName }}
+                            </span>
+
+                            <div 
+                            v-for="disaggregation in disaggregationGroupArray" 
+                            :key="disaggregation.id"
+                            class="w-full p-3 flex justify-between items-center bg-gray-100 rounded"
+                        >
+                            <div class="flex flex-col gap-1">
+                                <span class="text-base font-medium">
+                                    {{ disaggregation.name }}
+                                </span>
+
+                                <!-- TOTALABLE CHECKBOX -->
+                                <div 
+                                    v-if="selectedDisaggregations.includes(disaggregation.id)"
+                                    class="flex items-center gap-2 text-xs text-blue-700"
+                                >
+                                    <Checkbox
+                                        v-model="totalableDisaggregations"
+                                        :value="disaggregation.id"
+                                        inputId="`totalable-${disaggregation.id}`"
+                                    />
+                                    <label :for="`totalable-${disaggregation.id}`">
+                                        Include in total
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- ADD / REMOVE -->
+                            <Button
+                                :icon="selectedDisaggregations.includes(disaggregation.id) ? 'pi pi-minus' : 'pi pi-plus'"
+                                rounded
+                                size="small"
+                                outlined
+                                :severity="selectedDisaggregations.includes(disaggregation.id) ? 'warn' : 'help'"
+                                @click="handleDisaggregationAction(disaggregation.id)"
+                            />
+                        </div>
+                    </div>
+                </div>
+                
             </div>
 
             <template #footer>
@@ -201,20 +238,20 @@
         Tag,
         Dialog,
         Select,
-        Checkbox 
+        Checkbox
     } from 'primevue';
 
     const props = defineProps({
         program_indicators: Array,
-        disaggregations:Object,
-        sub_programs:Array
+        disaggregations: Object,
+        sub_programs: Array
     });
 
     defineOptions({
         layout: MainLayout
     });
 
-    onMounted(()=>{
+    onMounted(() => {
         console.log(props.program_indicators)
     })
 
@@ -227,6 +264,7 @@
     const errors = ref({});
     const disaggregationErrors = ref({});
     const selectedDisaggregations = ref([]);
+    const totalableDisaggregations = ref([])
 
     const form = ref({
         name: ''
@@ -245,7 +283,7 @@
         isEditMode.value = false;
         form.value = {
             name: '',
-            sub_program_id:undefined
+            sub_program_id: undefined
         };
         errors.value = {};
         editDialog.value = true;
@@ -303,10 +341,17 @@
     };
 
     const openDisaggregationDialog = (indicator) => {
+        //set the selected indicator
         selectedIndicator.value = indicator;
-        selectedDisaggregations.value = indicator.disaggregations?.map(d => d.id) || [];
+
+        //set selected disaggregations
+        selectedDisaggregations.value = indicator.disaggregations?.map(disaggregation => disaggregation.id) || [];
+        totalableDisaggregations.value = indicator.disaggregations?.filter(disaggregation => disaggregation.pivot?.totalable === 1).map(disaggregation => disaggregation.id) || [];
+
         disaggregationErrors.value = {};
         disaggregationDialog.value = true;
+
+        // console.log(totalableDisaggregations.value);
     };
 
     const closeDisaggregationDialog = () => {
@@ -315,16 +360,27 @@
     };
 
     const saveDisaggregations = () => {
+        // console.log(selectedDisaggregations.value);
+        // console.log(totalableDisaggregations.value);
         disaggregationErrors.value = {};
         saving.value = true;
+        
+        // // Build array with disaggregation_id and totalable flag
+        const disaggregationsData = selectedDisaggregations.value.map(id => ({
+            disaggregation_id: id,
+            totalable: totalableDisaggregations.value.includes(id),
+            program_indicator_id:selectedIndicator.id
+        }));
+
         router.post(`/indicator/disaggregations/set/${selectedIndicator.value.id}`, {
-            disaggregations: selectedDisaggregations.value
+            disaggregations: disaggregationsData
         }, {
             preserveScroll: true,
             onSuccess: () => {
                 disaggregationDialog.value = false;
                 selectedIndicator.value = null;
                 selectedDisaggregations.value = [];
+                totalableDisaggregations.value = [];
                 disaggregationErrors.value = {};
                 saving.value = false;
             },
@@ -335,4 +391,17 @@
         });
     };
 
+
+    const handleDisaggregationAction = (disaggregationId) => {
+        const index = selectedDisaggregations.value.indexOf(disaggregationId);
+
+        if (index === -1) {
+            // ADD
+            selectedDisaggregations.value.push(disaggregationId);
+        } else {
+            // REMOVE
+            selectedDisaggregations.value.splice(index, 1);
+        }
+
+    }
 </script>

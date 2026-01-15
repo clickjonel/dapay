@@ -52,3 +52,6 @@ Route::middleware(['web','auth'])->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout']);
 });
+
+
+Route::get('/test', [DashboardController::class, 'test']);

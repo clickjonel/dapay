@@ -26,6 +26,7 @@ class ProgramIndicators extends Model
             'program_indicator_disaggregations',
             'program_indicator_id',
             'disaggregation_id'
-        );
+        )
+        ->withPivot(['totalable']);
     }
 }
