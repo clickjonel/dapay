@@ -16,14 +16,35 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // Use Auth::attempt() - Laravel will handle bcrypt/argon2 verification
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            
-            return redirect()->intended('/dashboard-geographic');
+
+            // Get the authenticated user
+            $user = Auth::user();
+
+            // Redirect based on user level
+            switch ($user->user_level) {
+                //admin
+                case 1:
+                    return redirect()->intended('/dashboard-geographic');
+
+                //secretariat
+                case 2:
+                    return redirect()->intended('/dashboard-geographic');
+                
+                //secretariat
+                case 3:
+                    return redirect()->intended('/barangay');
+
+                //secretariat
+                case 4:
+                    return redirect()->intended('/program');
+
+                // default:
+                //     return redirect()->intended('/dashboard');
+            }
         }
 
-        // Return validation error
         throw ValidationException::withMessages([
             'username' => 'The provided credentials are incorrect.',
         ]);

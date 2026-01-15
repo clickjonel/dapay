@@ -156,7 +156,7 @@ class ProgramSeeder extends Seeder
                 'prefix' => null,
                 'nickname' => $program['name'],
                 'account_status' => 'Active',
-                'user_level' => 7,
+                'user_level' => 4,
                 'pdoho_province_id' => null,
                 'program_id' => $programCreated->id
             ]);

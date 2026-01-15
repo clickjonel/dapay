@@ -82,17 +82,17 @@
         {
             label: 'Programs',
             key:'Programs',
-            access_levels: [1,2,7], // Only admin can see
+            access_levels: [1,2,4], // Only admin can see
             items:[
                 {
                     label: 'Programs List',
                     command: () => router.visit('/program'),
-                    access_levels: [1,2,7]
+                    access_levels: [1,2,4]
                 },
                 {
                     label: 'Create Program',
                     command: () => router.visit('/program/create'),
-                    access_levels: [1,2,7]
+                    access_levels: [1,2,4]
                 },
             ]
         },
@@ -100,12 +100,12 @@
         {
             label: 'Barangays',
             key:'Barangays',
-            access_levels: [1,2,3,4,5,6],
+            access_levels: [1,2,3,4],
             items:[
                 {
                     label: 'Master List',
                     command: () => router.visit('/barangay'),
-                    access_levels: [1,2,3,4,5,6]
+                    access_levels: [1,2,3,4]
                 },
                 // {
                 //     label: 'PK Sites',
@@ -123,17 +123,17 @@
         {
             label: 'Indicators',
             key:'Indicators',
-            access_levels: [1,2,7],
+            access_levels: [1,2,4],
             items:[
                 {
                     label: 'Organizational',
                     command: () => router.visit('/indicator/organizational'),
-                    access_levels: [1,2,7]
+                    access_levels: [1,2,4]
                 },
                 {
                     label: 'Program',
                     command: () => router.visit('/indicator/program'),
-                    access_levels: [1,2,7]
+                    access_levels: [1,2,4]
                 },
             ]
         },
@@ -141,12 +141,12 @@
         {
             label: 'Disaggregations',
             key:'Disaggregations',
-            access_levels: [1,2,7],
+            access_levels: [1,2,4],
             items:[
                 {
                     label: 'Master List',
                     command: () => router.visit('/disaggregation'),
-                    access_levels: [1,2,7]
+                    access_levels: [1,2,4]
                 },
             ]
         },
@@ -154,17 +154,17 @@
         {
             label: 'Reports',
             key:'Reports',
-            access_levels: [1,2,3,4,5,6],
+            access_levels: [1,2,3,4],
             items:[
                 {
                     label: 'All Reports',
                     command: () => router.visit('/report'),
-                    access_levels: [1,2,3,4,5,6]
+                    access_levels: [1,2,3,4]
                 },
                 {
                     label: 'Create Report',
                     command: () => router.visit('/report/create'),
-                    access_levels: [1,2,3,4,5,6]
+                    access_levels: [1,2,3,4]
                 },
             ]
         },
