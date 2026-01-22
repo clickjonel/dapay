@@ -1,15 +1,15 @@
 <template>
     <main class="w-full min-h-screen flex justify-center items-center bg-white">
-        <section class="w-full px-6 py-8">
+        <section class="w-full max-w-6xl px-4 sm:px-6 py-6 sm:py-8">
             
             <!-- Header -->
-            <div class="mb-12">
-                <h1 class="text-2xl font-light mb-2">Create Report</h1>
+            <div class="mb-8 sm:mb-12">
+                <h1 class="text-xl sm:text-2xl font-light mb-2">Create Report</h1>
                 <Divider class="mt-2" />
             </div>
 
             <!-- Date and Barangay -->
-            <div class="w-full grid grid-cols-2 gap-4 mb-12">
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
                 <!-- Date -->
                 <div>
                     <label class="block text-sm text-gray-600 mb-3">
@@ -24,10 +24,10 @@
                         input-class="w-full"
                         :class="{ 'border-red-500': errors.date }"
                         :pt="{
-                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0' }
+                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
                         }"
                     />
-                    <small v-if="errors.date" class="text-red-500">{{ errors.date }}</small>
+                    <small v-if="errors.date" class="text-red-500 text-xs sm:text-sm">{{ errors.date }}</small>
                 </div>
 
                 <!-- Barangay -->
@@ -44,16 +44,16 @@
                         class="w-full"
                         :class="{ 'border-red-500': errors.barangay_id }"
                         :pt="{
-                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0' }
+                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
                         }"
                         filter
                     />
-                    <small v-if="errors.barangay_id" class="text-red-500">{{ errors.barangay_id }}</small>
+                    <small v-if="errors.barangay_id" class="text-red-500 text-xs sm:text-sm">{{ errors.barangay_id }}</small>
                 </div>
             </div>
 
             <!-- Total Clients Section -->
-            <div class="w-full grid grid-cols-2 gap-4 mb-12">
+            <div class="w-full grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-8 sm:mb-12">
                 <!-- Total Returning Clients -->
                 <div>
                     <label class="block text-sm text-gray-600 mb-3">
@@ -65,10 +65,10 @@
                         :class="{ 'border-red-500': errors.total_returning_clients }"
                         placeholder="0"
                         :pt="{
-                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full' }
+                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
                     />
-                    <small v-if="errors.total_returning_clients" class="text-red-500">{{ errors.total_returning_clients }}</small>
+                    <small v-if="errors.total_returning_clients" class="text-red-500 text-xs sm:text-sm">{{ errors.total_returning_clients }}</small>
                 </div>
 
                 <!-- Total Individual Clients -->
@@ -82,41 +82,41 @@
                         :class="{ 'border-red-500': errors.total_clients }"
                         placeholder="0"
                         :pt="{
-                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full' }
+                            input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
                     />
-                    <small v-if="errors.total_clients" class="text-red-500">{{ errors.total_clients }}</small>
+                    <small v-if="errors.total_clients" class="text-red-500 text-xs sm:text-sm">{{ errors.total_clients }}</small>
                 </div>
             </div>
 
             <!-- Indicators -->
-            <div class="mb-12">
-                <label class="block text-sm text-gray-600 mb-6">Indicators & Disaggregations</label>
+            <div class="mb-8 sm:mb-12">
+                <label class="block text-sm text-gray-600 mb-4 sm:mb-6">Indicators & Disaggregations</label>
                 
-                <div class="space-y-8">
+                <div class="space-y-6 sm:space-y-8">
                     <div 
                         v-for="(ind, indIndex) in program_indicators" 
                         :key="ind.id"
-                        class="border-l-2 border-gray-200 pl-6"
+                        class="border-l-2 border-gray-200 pl-4 sm:pl-6"
                     >
                         <!-- Indicator Name -->
-                        <h3 class="text-base font-medium mb-4 uppercase">{{ ind.name }}</h3>
+                        <h3 class="text-sm sm:text-base font-medium mb-3 sm:mb-4 uppercase">{{ ind.name }}</h3>
                         
                         <!-- Disaggregations -->
-                        <div class="space-y-4">
+                        <div class="space-y-3 sm:space-y-4">
                             <div 
                                 v-for="(disagg, disaggIndex) in ind.disaggregations" 
                                 :key="disagg.id"
-                                class="flex items-center gap-4"
+                                class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4"
                             >
-                                <span class="text-sm text-gray-600 w-48">{{ disagg.name }}</span>
+                                <span class="text-xs sm:text-sm text-gray-600 sm:w-48">{{ disagg.name }}</span>
                                 <InputNumber 
                                     v-model="disagg.value"
-                                    class="flex-1"
+                                    class="flex-1 w-full"
                                     placeholder="0"
                                     :min="0"
                                     :pt="{
-                                        input: { class: 'border-0 border-b border-gray-200 rounded-none focus:border-gray-400 px-0 w-full' }
+                                        input: { class: 'border-0 border-b border-gray-200 rounded-none focus:border-gray-400 px-0 w-full text-sm sm:text-base' }
                                     }"
                                 />
                             </div>
@@ -126,20 +126,24 @@
             </div>
 
             <!-- Actions -->
-            <div class="flex items-center gap-4 pt-6">
+            <div class="pt-6">
                 <Divider class="mb-4" />
-                <Button 
-                    label="Cancel"
-                    @click="router.visit('/report')"
-                    text
-                    severity="secondary"
-                />
-                <Button 
-                    label="Save"
-                    @click="submitForm"
-                    severity="contrast"
-                    icon="pi pi-check"
-                />
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                    <Button 
+                        label="Cancel"
+                        @click="router.visit('/report')"
+                        text
+                        severity="secondary"
+                        class="w-full sm:w-auto order-2 sm:order-1"
+                    />
+                    <Button 
+                        label="Save"
+                        @click="submitForm"
+                        severity="contrast"
+                        icon="pi pi-check"
+                        class="w-full sm:w-auto order-1 sm:order-2"
+                    />
+                </div>
             </div>
 
         </section>

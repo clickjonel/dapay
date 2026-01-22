@@ -8,6 +8,7 @@ use App\Http\Controllers\DisaggregationController;
 use App\Http\Controllers\IndicatorController;
 use App\Http\Controllers\ProgramController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -51,7 +52,8 @@ Route::middleware(['web','auth'])->group(function () {
     Route::post('/barangay-set-org_indicators', [BarangayOrganizationalIndicatorsController::class, 'createBarangayOrgIndicators']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::resource('/user', UserController::class);
+    Route::resource('/user/update-password', UserController::class);
+
 });
-
-
-Route::get('/test', [DashboardController::class, 'test']);
