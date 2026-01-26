@@ -380,7 +380,7 @@
         'Provinces': true,
         'Indicators':true,
         'Disaggregations':true,
-        'Reports':true
+        'Reports':true,
     });
 
     const handleLogout = () => {
