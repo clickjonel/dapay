@@ -21,6 +21,7 @@ class Barangay extends Model
         'target_purok',
         'target_households',
         'target_individuals',
+        'mov_gdrive_link'
     ];
 
     protected $casts = [

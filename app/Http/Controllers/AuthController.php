@@ -32,13 +32,17 @@ class AuthController extends Controller
                 case 2:
                     return redirect()->intended('/dashboard-geographic');
                 
-                //secretariat
+                //pdoho
                 case 3:
                     return redirect()->intended('/barangay');
 
-                //secretariat
+                //program
                 case 4:
                     return redirect()->intended('/program');
+                
+                //hrh
+                case 5:
+                    return redirect()->intended('/report');
 
                 // default:
                 //     return redirect()->intended('/dashboard');

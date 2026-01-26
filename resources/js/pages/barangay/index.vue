@@ -241,6 +241,18 @@
                     </div>
                 </div>
 
+                <!-- MOV -->
+                <div class="w-full">
+                    <h3 class="text-sm font-bold text-gray-700 mb-3 pb-2 border-b border-gray-200">MOV Google Drive Link</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputText 
+                            v-model="editModal.data.mov_gdrive_link" 
+                            placeholder="Enter Google Drive Link for MOV"
+                            class="text-sm w-full"
+                        />
+                    </div>
+                </div>
+
                 <!-- Form Actions -->
                 <div class="w-full flex justify-end gap-3 pt-4 border-t border-gray-200">
                     <Button 

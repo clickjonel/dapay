@@ -59,8 +59,16 @@
                 />
             </nav>
 
-            <!-- Logout Section -->
-            <div class="w-full border-t border-gray-200 pt-4 mt-4">
+            <!-- User Actions Section -->
+            <div class="w-full border-t border-gray-200 pt-4 mt-4 space-y-2">
+                <button 
+                    @click="showPasswordModal = true"
+                    class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200"
+                >
+                    <i class="pi pi-key text-base"></i>
+                    <span>Change Password</span>
+                </button>
+                
                 <button 
                     @click="handleLogout"
                     class="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
@@ -84,6 +92,50 @@
            
         </section>
 
+        <!-- Change Password Modal -->
+        <Dialog 
+            v-model:visible="showPasswordModal" 
+            modal 
+            header="Change Password" 
+            :style="{ width: '400px' }"
+            :dismissableMask="true"
+        >
+            <div class="space-y-4 py-4">
+                <!-- New Password -->
+                <div class="flex flex-col gap-2">
+                    <label for="new_password" class="text-sm font-medium text-gray-700">
+                        New Password <span class="text-red-500">*</span>
+                    </label>
+                    <Password 
+                        id="new_password"
+                        v-model="newPassword"
+                        toggleMask
+                        placeholder="Enter new password"
+                        class="w-full"
+                        input-class="w-full"
+                    />
+                </div>
+            </div>
+
+            <template #footer>
+                <div class="flex justify-end gap-2">
+                    <Button 
+                        label="Cancel" 
+                        severity="secondary" 
+                        @click="closePasswordModal"
+                        outlined
+                        :disabled="isSubmitting"
+                    />
+                    <Button 
+                        label="Change Password" 
+                        severity="success" 
+                        @click="submitPasswordChange"
+                        :loading="isSubmitting"
+                    />
+                </div>
+            </template>
+        </Dialog>
+
         <Toast position="top-right"/>
     </div>
 
@@ -94,6 +146,12 @@
     import { PanelMenu } from 'primevue';
     import { router, usePage } from '@inertiajs/vue3';
     import Toast from 'primevue/toast';
+    import Dialog from 'primevue/dialog';
+    import Password from 'primevue/password';
+    import Button from 'primevue/button';
+    import { useToast } from 'primevue/usetoast';
+
+    const toast = useToast();
 
     // Get the authenticated user from Inertia
     const page = usePage();
@@ -102,12 +160,61 @@
     // Sidebar state for mobile
     const sidebarOpen = ref(false);
 
+    // Password modal state
+    const showPasswordModal = ref(false);
+    const isSubmitting = ref(false);
+    const newPassword = ref('');
+
     const toggleSidebar = () => {
         sidebarOpen.value = !sidebarOpen.value;
     };
 
     const closeSidebar = () => {
         sidebarOpen.value = false;
+    };
+
+    const closePasswordModal = () => {
+        showPasswordModal.value = false;
+        newPassword.value = '';
+    };
+
+    const submitPasswordChange = () => {
+        if (!newPassword.value) {
+            toast.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Please enter a new password',
+                life: 3000
+            });
+            return;
+        }
+
+        isSubmitting.value = true;
+
+        router.put(`/user/${page.props.auth.user.id}`, { new_password: newPassword.value }, {
+            preserveScroll: true,
+            onSuccess: () => {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Success',
+                    detail: 'Password changed successfully!',
+                    life: 3000
+                });
+                closePasswordModal();
+            },
+            onError: (errors) => {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to change password.',
+                    life: 3000
+                });
+                console.log(errors)
+            },
+            onFinish: () => {
+                isSubmitting.value = false;
+            }
+        });
     };
 
     // Close sidebar when route changes (mobile)
@@ -211,17 +318,22 @@
         {
             label: 'Reports',
             key:'Reports',
-            access_levels: [1,2,3,4],
+            access_levels: [1,2,3,4,5],
             items:[
                 {
                     label: 'All Reports',
                     command: () => router.visit('/report'),
-                    access_levels: [1,2,3,4]
+                    access_levels: [1,2,3,4,5]
+                },
+                {
+                    label: 'This Month',
+                    command: () => router.visit('/report/monthly-user-report'),
+                    access_levels: [1,2,3,4,5]
                 },
                 {
                     label: 'Create Report',
                     command: () => router.visit('/report/create'),
-                    access_levels: [1,2,3,4]
+                    access_levels: [1,2,3,4,5]
                 },
             ]
         },

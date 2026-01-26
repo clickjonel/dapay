@@ -31,6 +31,10 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('barangay', BarangayController::class);
     Route::resource('disaggregation', DisaggregationController::class);
 
+    Route::get('/report/monthly-user-report', [ReportController::class, 'generateUserMonthlyReport']);
+    Route::resource('report', ReportController::class);
+    
+
     Route::get('/indicator/organizational',[IndicatorController::class,'organizationalIndicatorsPage']);
     Route::get('/indicator/program',[IndicatorController::class,'programIndicatorsPage']);
 
@@ -45,15 +49,15 @@ Route::middleware(['web','auth'])->group(function () {
 
     Route::post('/indicator/disaggregations/set/{id}',[IndicatorController::class,'setProgramIndicatorDisaggregations']);
 
-    Route::get('/report', [ReportController::class, 'index'])->name('reports.index');
-    Route::get('/report/create', [ReportController::class, 'showCreateReportPage']);
-    Route::post('/report', [ReportController::class, 'createReport']);
+    // Route::get('/report', [ReportController::class, 'index'])->name('reports.index');
+    // Route::get('/report/create', [ReportController::class, 'showCreateReportPage']);
+    // Route::post('/report', [ReportController::class, 'createReport']);
 
     Route::post('/barangay-set-org_indicators', [BarangayOrganizationalIndicatorsController::class, 'createBarangayOrgIndicators']);
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::resource('/user', UserController::class);
-    Route::resource('/user/update-password', UserController::class);
+    // Route::resource('/user/change-password', UserController::class);
 
 });

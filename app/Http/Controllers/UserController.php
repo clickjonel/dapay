@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -97,7 +98,15 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $request->validate([
+            'new_password' => 'required',
+        ]);
+
+        $request->user()->update([
+            'password' => $request->new_password
+        ]);
+
+        return back()->with('success', 'Password changed successfully!');
     }
 
     /**

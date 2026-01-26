@@ -4,7 +4,7 @@
             
             <!-- Header -->
             <div class="mb-8 sm:mb-12">
-                <h1 class="text-xl sm:text-2xl font-light mb-2">Create Report</h1>
+                <h1 class="text-xl sm:text-2xl font-light mb-2">Edit Report</h1>
                 <Divider class="mt-2" />
             </div>
 
@@ -137,11 +137,12 @@
                         class="w-full sm:w-auto order-2 sm:order-1"
                     />
                     <Button 
-                        label="Save"
+                        label="Update"
                         @click="submitForm"
                         severity="contrast"
                         icon="pi pi-check"
                         class="w-full sm:w-auto order-1 sm:order-2"
+                        :loading="isSubmitting"
                     />
                 </div>
             </div>
@@ -158,19 +159,27 @@
     import { router } from '@inertiajs/vue3';
     import { Button, InputNumber, Divider, DatePicker, Select, Toast } from 'primevue';
     import { useToast } from 'primevue/usetoast';
+    import MainLayout from '@/layouts/mainLayout.vue';
 
     const props = defineProps({
+        report: Object,
         program_indicators: Array,
         org_indicators: Array,
         barangays: Array
     })
 
+    defineOptions({
+        layout: MainLayout
+    })
+
     const toast = useToast();
+    const isSubmitting = ref(false);
+
     const form = ref({
-        date: null,
-        barangay_id: null,
-        total_returning_clients: null,
-        total_clients: null
+        date: new Date(props.report.date),
+        barangay_id: props.report.barangay_id,
+        total_returning_clients: props.report.total_returning_clients,
+        total_clients: props.report.total_clients
     })
 
     const errors = ref({
@@ -199,11 +208,6 @@
             errors.value.barangay_id = 'Barangay is required';
             isValid = false;
         }
-
-        // if (!form.value.total_returning_clients || form.value.total_returning_clients < 1) {
-        //     errors.value.total_returning_clients = 'Total returning clients must be at least 1';
-        //     isValid = false;
-        // }
 
         if (!form.value.total_clients || form.value.total_clients < 1) {
             errors.value.total_clients = 'Total individual clients must be at least 1';
@@ -243,12 +247,15 @@
             values: programValues
         };
 
-        router.post('/report', payload, {
+        isSubmitting.value = true;
+
+        router.put(`/report/${props.report.id}`, payload, {
+            preserveScroll: true,
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
                     summary: 'Success',
-                    detail: 'Report created successfully',
+                    detail: 'Report updated successfully',
                     life: 3000
                 });
             },
@@ -256,10 +263,13 @@
                 toast.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to create report. Please check your inputs.',
+                    detail: 'Failed to update report. Please check your inputs.',
                     life: 3000
                 });
                 console.error('Validation errors:', errors);
+            },
+            onFinish: () => {
+                isSubmitting.value = false;
             }
         });
     }

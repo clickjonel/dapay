@@ -34,6 +34,8 @@ return new class extends Migration
             $table->integer('target_households')->nullable();
             $table->integer('target_individuals')->nullable();
 
+            $table->string('mov_gdrive_link')->nullable();
+
         });
 
     }
