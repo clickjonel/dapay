@@ -7,7 +7,7 @@
                     <Button 
                         label="Print Report" 
                         icon="pi pi-print"
-                        @click="router.visit('/report/print')"
+                        @click="router.visit('/report/monthly-user-report-print')"
                         size="small"
                     />
                 </section>

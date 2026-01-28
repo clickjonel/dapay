@@ -32,6 +32,7 @@ Route::middleware(['web','auth'])->group(function () {
     Route::resource('disaggregation', DisaggregationController::class);
 
     Route::get('/report/monthly-user-report', [ReportController::class, 'generateUserMonthlyReport']);
+    Route::get('/report/monthly-user-report-print', [ReportController::class, 'renderMonthlyUserReportPage']);
     Route::resource('report', ReportController::class);
     
 

@@ -25,101 +25,63 @@ class DashboardController extends Controller
 
     public function programIndicatorsDashboard()
     {
-        $programs = ReportValue::with([
-            'subProgram',
-            'programIndicator.disaggregations',
-            'report.barangay.province',
-            'disaggregation'
+       $programs = SubProgram::with([
+            'reportValues.disaggregations.disaggregation',
+            'reportValues.report.barangay.province',
+            'reportValues.programIndicator',
         ])
         ->get()
-        // Group all report values by their sub-program name
-        ->groupBy(fn($v) => $v->subProgram->name ?? 'Undefined Program')
-        ->map(function($programGroup) {
-            return [
-                'indicators' => $programGroup
-                    // Group each program's values by indicator name
-                    ->groupBy(fn($v) => $v->programIndicator->name ?? 'No Indicator')
-                    ->map(function($indicatorGroup) {
-                        // Get the indicator model from the first item (all items share same indicator)
-                        $indicator = $indicatorGroup->first()->programIndicator;
-                        
-                        // Build disaggregation metadata map (id => [name, totalable]) for quick lookup
-                        // Cache this once to avoid repeated relationship queries
-                        $disaggMeta = $indicator?->disaggregations->mapWithKeys(fn($d) => [
-                            $d->id => [
-                                'name' => $d->name,
-                                'totalable' => (bool)$d->pivot->totalable, // Whether this disagg counts toward totals
-                            ]
-                        ]) ?? collect();
-                        
-                        // Check if this indicator has any disaggregations configured
-                        $hasDisaggregations = $disaggMeta->isNotEmpty();
+        ->map(function ($sub_program) {
 
-                        // Group indicator values by province, then by disaggregation within each province
-                        $provinces = $indicatorGroup
-                            ->groupBy(fn($v) => $v->report->barangay->province->name ?? 'No Province')
-                            ->map(function($provinceGroup) use ($disaggMeta, $hasDisaggregations) {
-                                // Track totalable sum inline to avoid filtering collection twice
-                                $totalableSum = 0;
-                                
-                                // If no disaggregations configured, sum all values
-                                if (!$hasDisaggregations) {
-                                    $totalableSum = $provinceGroup->sum('value');
-                                    
+            // Overall total per sub-program
+            $sub_program->total_value = $sub_program->reportValues->sum('total_value');
+
+            // Group report values by indicators, then by province
+            $sub_program->indicators = $sub_program->reportValues
+                ->groupBy(fn($rv) => $rv->programIndicator?->name ?? 'Undefined Indicator')
+                ->map(function ($reportValues, $indicatorName) {
+                    
+                    // Total for this indicator across all provinces
+                    $indicatorTotal = $reportValues->sum('total_value');
+                    
+                    // Group by province within this indicator
+                    $provinces = $reportValues
+                        ->groupBy(fn($rv) => $rv->report?->barangay?->province?->name ?? 'Undefined Province')
+                        ->map(function ($provinceReportValues, $provinceName) {
+                            
+                            // Aggregate disaggregations for this province
+                            $disaggregations = $provinceReportValues
+                                ->flatMap(fn($rv) => $rv->disaggregations)
+                                ->groupBy(fn($d) => $d->disaggregation?->name ?? 'Undefined')
+                                ->map(function ($items, $disaggName) {
+                                    $firstItem = $items->first();
                                     return [
-                                        'disaggregations' => collect([
-                                            [
-                                                'name' => 'Total',
-                                                'raw' => $totalableSum,
-                                                'value' => number_format($totalableSum),
-                                                'totalable' => true,
-                                            ]
-                                        ]),
-                                        'total' => number_format($totalableSum),
-                                        'raw_total' => $totalableSum,
+                                        'name' => $disaggName,
+                                        'value' => $items->sum('value'),
+                                        'totalable' => $firstItem->disaggregation?->totalable ?? false,
                                     ];
-                                }
-                                
-                                // Group by disaggregation ID and calculate sums
-                                $disaggTotals = $provinceGroup
-                                    ->groupBy('disaggregation_id') // Direct property access is faster
-                                    ->map(function($items, $disaggId) use ($disaggMeta, &$totalableSum) {
-                                        // Sum all values for this disaggregation
-                                        $sum = $items->sum('value');
-                                        
-                                        // Get metadata with safe default
-                                        $meta = $disaggMeta->get($disaggId, ['name' => 'Not Identified', 'totalable' => false]);
-                                        
-                                        // Accumulate totalable values inline (avoids second iteration)
-                                        if ($meta['totalable']) {
-                                            $totalableSum += $sum;
-                                        }
-                                        
-                                        return [
-                                            'name' => $meta['name'],
-                                            'raw' => $sum,                    // Numeric for calculations
-                                            'value' => number_format($sum),   // Formatted for display
-                                            'totalable' => $meta['totalable'], // Flag for UI styling
-                                        ];
-                                    })
-                                    ->values(); // Re-index for clean JSON output
+                                })
+                                ->values();
+                            
+                            return [
+                                'province_name' => $provinceName,
+                                'total_value' => $provinceReportValues->sum('total_value'),
+                                'count' => $provinceReportValues->count(),
+                                'disaggregations' => $disaggregations,
+                            ];
+                        })
+                        ->values();
+                    
+                    return [
+                        'indicator_name' => $indicatorName,
+                        'total_value' => $indicatorTotal,
+                        'provinces' => $provinces,
+                    ];
+                })
+                ->values();
 
-                                return [
-                                    'disaggregations' => $disaggTotals,
-                                    'total' => number_format($totalableSum),      // Province total (only totalable)
-                                    'raw_total' => $totalableSum,                 // Unformatted for grand total calc
-                                ];
-                            });
-
-                        // Calculate indicator's grand total across all provinces
-                        return [
-                            'disaggregations' => $disaggMeta->values(),    // Metadata for UI reference
-                            'provinces' => $provinces,                      // All province data
-                            'total' => number_format($provinces->sum('raw_total')),  // Grand total formatted
-                            'raw_total' => $provinces->sum('raw_total'),              // Grand total raw
-                        ];
-                    }),
-            ];
+            unset($sub_program->reportValues);
+            return $sub_program;
         });
 
         return Inertia::render('programIndicatorsDashboard', [

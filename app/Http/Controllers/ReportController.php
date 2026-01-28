@@ -6,9 +6,11 @@ use App\Models\Barangay;
 use App\Models\OrganizationalIndicators;
 use App\Models\ProgramIndicators;
 use App\Models\Report;
+use App\Models\ReportValueDisaggregation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -64,15 +66,84 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-         $report = Report::create([
-            'submitted_by' => Auth::id(),
-            'total_clients' => $request->input('total_clients'),
-            'total_returning_clients' => $request->input('total_returning_clients'),
-            'barangay_id' => $request->input('barangay_id'),
-            'date' => $request->input('date')
+         // Validate the request
+        $validated = $request->validate([
+            'date' => 'required|date',
+            'barangay_id' => 'required|exists:barangays,id',
+            'total_clients' => 'required|integer|min:1',
+            'total_returning_clients' => 'nullable|integer|min:0',
+            'values' => 'required|array|min:1',
+            'values.*.program_indicator_id' => 'required|exists:program_indicators,id',
+            'values.*.sub_program_id' => 'nullable|exists:sub_programs,id',
+            'values.*.total_value' => 'required|integer|min:0',
+            'values.*.disaggregations' => 'required|array',
+            'values.*.disaggregations.*.disaggregation_id' => 'required|exists:disaggregations,id',
+            'values.*.disaggregations.*.value' => 'required|integer|min:0',
         ]);
 
-        $report->values()->createMany($request->input('values'));
+       try {
+            // Use database transaction to ensure data integrity
+            DB::beginTransaction();
+
+            // Create the main report
+            $report = Report::create([
+                'submitted_by' => Auth::id(),
+                'total_clients' => $validated['total_clients'],
+                'total_returning_clients' => $validated['total_returning_clients'] ?? 0,
+                'barangay_id' => $validated['barangay_id'],
+                'date' => $validated['date']
+            ]);
+
+            // Process each indicator's values
+            foreach ($validated['values'] as $valueData) {
+                // Create the report value record (one per indicator)
+                $reportValue = $report->values()->create([
+                    'sub_program_id' => $valueData['sub_program_id'] ?? null,
+                    'program_indicator_id' => $valueData['program_indicator_id'],
+                    'total_value' => $valueData['total_value'],
+                ]);
+
+                // Create disaggregation records for this report value
+                $disaggregations = [];
+                foreach ($valueData['disaggregations'] as $disaggregation) {
+                    $disaggregations[] = [
+                        'report_value_id' => $reportValue->id,
+                        'disaggregation_id' => $disaggregation['disaggregation_id'],
+                        'value' => $disaggregation['value'],
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ];
+                }
+
+                // Bulk insert disaggregations for better performance
+                if (!empty($disaggregations)) {
+                    ReportValueDisaggregation::insert($disaggregations);
+                }
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            return redirect()
+                ->route('report.index')
+                ->with('success', 'Report created successfully.');
+
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            DB::rollBack();
+            
+            // Log the error for debugging
+            // Log::error('Report creation failed: ' . $e->getMessage(), [
+            //     'user_id' => Auth::id(),
+            //     'request_data' => $request->all(),
+            //     'exception' => $e
+            // ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['error' => 'Failed to create report. Please try again.']);
+        }
 
         return redirect()->route('report.index')->with('success', 'Report created successfully.');
     }
@@ -91,30 +162,34 @@ class ReportController extends Controller
     public function edit(Report $report)
     {
         // Load report with its values
-        $report->load(['values', 'barangay.municipality']);
+        $report->load([
+            'values.disaggregations',
+            'barangay.municipality'
+        ]);
 
         // Get active indicators with disaggregations
-        $program_indicators = ProgramIndicators::with(['disaggregations'])
-            ->where('active', true)
-            ->has('disaggregations')
-            ->get()
-            ->map(function ($indicator) use ($report) {
-                // Map disaggregations with existing values
-                $indicator->disaggregations = $indicator->disaggregations->map(function ($disagg) use ($report, $indicator) {
-                    // Find existing value for this disaggregation
-                    $existingValue = $report->values->filter(function ($value) use ($disagg, $indicator) {
-                        return $value->disaggregation_id === $disagg->id 
-                            && $value->program_indicator_id === $indicator->id;
-                    })->first();
-                    
-                    // Add the value to the disaggregation
-                    $disagg->value = $existingValue ? $existingValue->value : 0;
-                    
+        $program_indicators = ProgramIndicators::with('disaggregations')
+        ->where('active', true)
+        ->has('disaggregations')
+        ->get()
+        ->map(function ($indicator) use ($report) {
+
+            $indicator->disaggregations = $indicator->disaggregations->map(
+                function ($disagg) use ($report, $indicator) {
+
+                    $existingValue = $report->values
+                        ->where('program_indicator_id', $indicator->id)
+                        ->flatMap->disaggregations
+                        ->firstWhere('disaggregation_id', $disagg->id);
+
+                    $disagg->value = $existingValue?->value ?? 0;
+
                     return $disagg;
-                });
-                
-                return $indicator;
-            });
+                }
+            );
+
+            return $indicator;
+        });
 
         $org_indicators = OrganizationalIndicators::where('active', true)->get();
         $barangays = Barangay::get();
@@ -131,40 +206,93 @@ class ReportController extends Controller
      * Update the specified resource in storage.
      */
     public function update(Request $request, Report $report)
-    {
-        $validated = $request->validate([
-            'date' => ['required', 'date'],
-            'barangay_id' => ['required', 'exists:barangays,id'],
-            'total_returning_clients' => ['nullable', 'integer', 'min:0'],
-            'total_clients' => ['required', 'integer', 'min:1'],
-            'values' => ['required', 'array'],
-            'values.*.sub_program_id' => ['nullable', 'exists:sub_programs,id'],
-            'values.*.program_indicator_id' => ['nullable', 'exists:program_indicators,id'],
-            'values.*.organizational_indicator_id' => ['nullable', 'exists:organizational_indicators,id'],
-            'values.*.disaggregation_id' => ['required', 'exists:disaggregations,id'],
-            'values.*.indicator_type' => ['required', 'in:program,organizational'],
-            'values.*.value' => ['required', 'integer', 'min:0'],
-        ]);
+{
+    // Validate the incoming request
+    $validated = $request->validate([
+        'date' => 'required|date',
+        'barangay_id' => 'required|exists:barangays,id',
+        'total_clients' => 'required|integer|min:1',
+        'total_returning_clients' => 'nullable|integer|min:0',
+        'values' => 'required|array|min:1',
+        'values.*.program_indicator_id' => 'required|exists:program_indicators,id',
+        'values.*.sub_program_id' => 'nullable|exists:sub_programs,id',
+        'values.*.total_value' => 'required|integer|min:0',
+        'values.*.disaggregations' => 'required|array',
+        'values.*.disaggregations.*.disaggregation_id' => 'required|exists:disaggregations,id',
+        'values.*.disaggregations.*.value' => 'required|integer|min:0',
+    ]);
 
-        // Update report basic information
+    try {
+        // Use database transaction to ensure data integrity
+        DB::beginTransaction();
+
+        // Update the main report
         $report->update([
-            'date' => $validated['date'],
-            'barangay_id' => $validated['barangay_id'],
-            'total_returning_clients' => $validated['total_returning_clients'],
             'total_clients' => $validated['total_clients'],
+            'total_returning_clients' => $validated['total_returning_clients'] ?? 0,
+            'barangay_id' => $validated['barangay_id'],
+            'date' => $validated['date']
         ]);
 
-        // Delete existing values
+        // Delete all existing report values and their disaggregations
+        // This is simpler than trying to update/delete/create individually
+        foreach ($report->values as $value) {
+            $value->disaggregations()->delete();
+        }
         $report->values()->delete();
 
-        // Create new values
+        // Create new report values and disaggregations
         foreach ($validated['values'] as $valueData) {
-            $report->values()->create($valueData);
+            // Create the report value record (one per indicator)
+            $reportValue = $report->values()->create([
+                'sub_program_id' => $valueData['sub_program_id'] ?? null,
+                'program_indicator_id' => $valueData['program_indicator_id'],
+                'total_value' => $valueData['total_value'],
+            ]);
+
+            // Create disaggregation records for this report value
+            $disaggregations = [];
+            foreach ($valueData['disaggregations'] as $disaggregation) {
+                $disaggregations[] = [
+                    'report_value_id' => $reportValue->id,
+                    'disaggregation_id' => $disaggregation['disaggregation_id'],
+                    'value' => $disaggregation['value'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            // Bulk insert disaggregations for better performance
+            if (!empty($disaggregations)) {
+                ReportValueDisaggregation::insert($disaggregations);
+            }
         }
 
-        return redirect()->route('report.index')
-            ->with('success', 'Report updated successfully');
+        // Commit the transaction
+        DB::commit();
+
+        return redirect()
+            ->route('report.index')
+            ->with('success', 'Report updated successfully.');
+
+    } catch (\Exception $e) {
+        // Rollback transaction on error
+        DB::rollBack();
+        
+        // Log the error for debugging
+        // Log::error('Report update failed: ' . $e->getMessage(), [
+        //     'report_id' => $report->id,
+        //     'user_id' => Auth::id(),
+        //     'request_data' => $request->all(),
+        //     'exception' => $e
+        // ]);
+
+        return redirect()
+            ->back()
+            ->withInput()
+            ->withErrors(['error' => 'Failed to update report. Please try again.']);
     }
+}
 
     /**
      * Remove the specified resource from storage.
@@ -198,6 +326,30 @@ class ReportController extends Controller
         ]); 
 
         // return $reports;
+    }
+
+    public function renderMonthlyUserReportPage()
+    {
+        $user = Auth::user();
+        $reports = Report::with(['barangay.municipality', 'values.programIndicator'])
+            ->where('submitted_by', $user->id)
+            ->whereMonth('date', Carbon::now()->month)
+            ->whereYear('date', Carbon::now()->year)
+            ->get();
+            // ->map(function($report){`
+                
+            //     //group by sub program
+            //     $report->programs = $report->values->groupBy(fn($values) => $values->subProgram->name ?? 'No Program Tagged');
+                
+            //     //group sub programs by indicator
+                
+            //     return $report;
+            // });
+           
+        
+        return Inertia::render('report/monthly-print', [
+            'reports' => $reports,
+        ]); 
     }
 
 

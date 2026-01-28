@@ -25,4 +25,9 @@ class SubProgram extends Model
         return $this->hasMany(ProgramIndicators::class,'sub_program_id','id');
     }
 
+    public function reportValues()
+    {
+        return $this->hasMany(ReportValue::class,'sub_program_id','id');
+    }
+
 }

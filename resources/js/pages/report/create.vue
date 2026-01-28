@@ -22,6 +22,7 @@
                         placeholder="Select date"
                         class="w-full"
                         input-class="w-full"
+                        size="small"
                         :class="{ 'border-red-500': errors.date }"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
@@ -42,6 +43,7 @@
                         optionValue="id"
                         placeholder="Select barangay"
                         class="w-full"
+                        size="small"
                         :class="{ 'border-red-500': errors.barangay_id }"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
@@ -64,6 +66,7 @@
                         class="w-full"
                         :class="{ 'border-red-500': errors.total_returning_clients }"
                         placeholder="0"
+                        size="small"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
@@ -81,6 +84,7 @@
                         class="w-full"
                         :class="{ 'border-red-500': errors.total_clients }"
                         placeholder="0"
+                        size="small"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
@@ -114,6 +118,7 @@
                                     v-model="disagg.value"
                                     class="flex-1 w-full"
                                     placeholder="0"
+                                    size="small"
                                     :min="0"
                                     :pt="{
                                         input: { class: 'border-0 border-b border-gray-200 rounded-none focus:border-gray-400 px-0 w-full text-sm sm:text-base' }
@@ -158,6 +163,7 @@
     import { router } from '@inertiajs/vue3';
     import { Button, InputNumber, Divider, DatePicker, Select, Toast } from 'primevue';
     import { useToast } from 'primevue/usetoast';
+import program from '@/routes/program';
 
     const props = defineProps({
         program_indicators: Array,
@@ -200,11 +206,6 @@
             isValid = false;
         }
 
-        // if (!form.value.total_returning_clients || form.value.total_returning_clients < 1) {
-        //     errors.value.total_returning_clients = 'Total returning clients must be at least 1';
-        //     isValid = false;
-        // }
-
         if (!form.value.total_clients || form.value.total_clients < 1) {
             errors.value.total_clients = 'Total individual clients must be at least 1';
             isValid = false;
@@ -224,23 +225,25 @@
             return;
         }
 
-        const programValues = props.program_indicators.flatMap(indicator => 
-            indicator.disaggregations.map(disagg => ({
-                sub_program_id: indicator.sub_program_id || null,
-                program_indicator_id: indicator.id,
-                organizational_indicator_id: null,
-                disaggregation_id: disagg.id,
-                indicator_type: 'program',
-                value: disagg.value || 0
-            }))
-        );
 
         const payload = {
             date: form.value.date.toISOString().split('T')[0],
             barangay_id: form.value.barangay_id,
-            total_returning_clients: form.value.total_returning_clients,
+            total_returning_clients: form.value.total_returning_clients || 0,
             total_clients: form.value.total_clients,
-            values: programValues
+            values: props.program_indicators.map(indicator => ({
+                program_indicator_id: indicator.id,
+                sub_program_id: indicator.sub_program_id,
+
+                total_value: indicator.disaggregations
+                    .filter(disagg => disagg.pivot?.totalable)
+                    .reduce((sum, disagg) => sum + (Number(disagg.value) || 0), 0),
+
+                disaggregations: indicator.disaggregations.map(disagg => ({
+                    disaggregation_id: disagg.id,
+                    value: Number(disagg.value) || 0,
+                }))
+            }))
         };
 
         router.post('/report', payload, {

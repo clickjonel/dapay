@@ -54,10 +54,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 1,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_nutrition'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_nutrition'],
             ]);
 
             //Immunization
@@ -65,10 +65,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 2,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_immunization'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_immunization'],
             ]);
 
             //maternal
@@ -76,10 +76,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 7,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_maternal'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_maternal'],
             ]);
 
             //tb
@@ -87,10 +87,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 4,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_tb'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_tb'],
             ]);
 
 
@@ -99,10 +99,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 5,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_hiv'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_hiv'],
             ]);
 
             //road safety
@@ -110,10 +110,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 6,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_road_safety'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_road_safety'],
             ]);
 
             //diabetes
@@ -121,10 +121,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 9,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_diabetes'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_diabetes'],
             ]);
 
             //hypertension
@@ -132,10 +132,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 10,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_hypertension'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_hypertension'],
             ]);
 
             //breast cancer
@@ -143,10 +143,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 11,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_breast_cancer'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_breast_cancer'],
             ]);
 
             //cervical cancer
@@ -154,10 +154,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 12,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_cervical_cancer'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_cervical_cancer'],
             ]);
 
             //health promotion
@@ -165,10 +165,10 @@ class BenguetSeeder extends Seeder
                 'report_id' => $report->id,
                 'sub_program_id' => 13,
                 'program_indicator_id' => null,
-                'organizational_indicator_id' => null,
-                'disaggregation_id' => null,
-                'indicator_type' => null,
-                'value' => (int) $row['total_reached_health_promotion'],
+                // 'organizational_indicator_id' => null,
+                // 'disaggregation_id' => null,
+                // 'indicator_type' => null,
+                'total_value' => (int) $row['total_reached_health_promotion'],
             ]);
 
 

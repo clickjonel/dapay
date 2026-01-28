@@ -29,4 +29,5 @@ class ProgramIndicators extends Model
         )
         ->withPivot(['totalable']);
     }
+
 }

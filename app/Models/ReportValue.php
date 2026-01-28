@@ -10,10 +10,10 @@ class ReportValue extends Model
         'report_id',
         'sub_program_id',
         'program_indicator_id',
-        'organizational_indicator_id',
-        'disaggregation_id',
-        'indicator_type',
-        'value'
+        //'organizational_indicator_id',
+        //'disaggregation_id',
+        // 'indicator_type',
+        'total_value'
     ];
 
     public function report()
@@ -30,9 +30,9 @@ class ReportValue extends Model
         return $this->belongsTo(ProgramIndicators::class,'program_indicator_id','id');
     }
 
-    public function disaggregation()
+    public function disaggregations()
     {
-        return $this->belongsTo(Disaggregation::class,'disaggregation_id','id');
+        return $this->hasMany(ReportValueDisaggregation::class,'report_value_id','id');
     }
 
 }

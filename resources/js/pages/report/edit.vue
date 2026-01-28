@@ -22,6 +22,7 @@
                         placeholder="Select date"
                         class="w-full"
                         input-class="w-full"
+                        size="small"
                         :class="{ 'border-red-500': errors.date }"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
@@ -42,6 +43,7 @@
                         optionValue="id"
                         placeholder="Select barangay"
                         class="w-full"
+                        size="small"
                         :class="{ 'border-red-500': errors.barangay_id }"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 text-sm sm:text-base' }
@@ -64,6 +66,7 @@
                         class="w-full"
                         :class="{ 'border-red-500': errors.total_returning_clients }"
                         placeholder="0"
+                        size="small"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
@@ -81,6 +84,7 @@
                         class="w-full"
                         :class="{ 'border-red-500': errors.total_clients }"
                         placeholder="0"
+                        size="small"
                         :pt="{
                             input: { class: 'border-0 border-b border-gray-300 rounded-none focus:border-black px-0 w-full text-sm sm:text-base' }
                         }"
@@ -114,11 +118,21 @@
                                     v-model="disagg.value"
                                     class="flex-1 w-full"
                                     placeholder="0"
+                                    size="small"
                                     :min="0"
                                     :pt="{
                                         input: { class: 'border-0 border-b border-gray-200 rounded-none focus:border-gray-400 px-0 w-full text-sm sm:text-base' }
                                     }"
+                                    @input="calculateIndicatorTotal(ind)"
                                 />
+                            </div>
+
+                            <!-- Total for this indicator -->
+                            <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-3 pt-3 border-t border-gray-200">
+                                <span class="text-xs sm:text-sm font-semibold text-gray-700 sm:w-48">Total for {{ ind.name }}</span>
+                                <div class="flex-1 text-sm sm:text-base font-bold text-gray-900">
+                                    {{ calculateIndicatorTotal(ind) }}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -142,7 +156,6 @@
                         severity="contrast"
                         icon="pi pi-check"
                         class="w-full sm:w-auto order-1 sm:order-2"
-                        :loading="isSubmitting"
                     />
                 </div>
             </div>
@@ -155,31 +168,23 @@
 </template>
 
 <script setup>
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import { router } from '@inertiajs/vue3';
     import { Button, InputNumber, Divider, DatePicker, Select, Toast } from 'primevue';
     import { useToast } from 'primevue/usetoast';
-    import MainLayout from '@/layouts/mainLayout.vue';
 
     const props = defineProps({
         report: Object,
         program_indicators: Array,
-        org_indicators: Array,
         barangays: Array
     })
 
-    defineOptions({
-        layout: MainLayout
-    })
-
     const toast = useToast();
-    const isSubmitting = ref(false);
-
     const form = ref({
-        date: new Date(props.report.date),
-        barangay_id: props.report.barangay_id,
-        total_returning_clients: props.report.total_returning_clients,
-        total_clients: props.report.total_clients
+        date: null,
+        barangay_id: null,
+        total_returning_clients: null,
+        total_clients: null
     })
 
     const errors = ref({
@@ -188,6 +193,32 @@
         total_returning_clients: null,
         total_clients: null
     })
+
+    // Initialize form with existing report data
+    onMounted(() => {
+        form.value = {
+            date: new Date(props.report.date),
+            barangay_id: props.report.barangay_id,
+            total_returning_clients: props.report.total_returning_clients,
+            total_clients: props.report.total_clients
+        }
+
+        // The disaggregation values are already set by the backend
+        // No need to map them here since the backend already did it
+        // Just ensure the structure is correct
+        console.log('Report loaded:', props.report);
+        console.log('Program indicators with values:', props.program_indicators);
+    });
+
+    // Calculate total for each indicator based on totalable disaggregation values
+    const calculateIndicatorTotal = (indicator) => {
+        const total = indicator.disaggregations
+            .filter(disagg => disagg.pivot?.totalable)
+            .reduce((sum, disagg) => {
+                return sum + (parseInt(disagg.value) || 0);
+            }, 0);
+        return total;
+    }
 
     const validateForm = () => {
         errors.value = {
@@ -228,29 +259,35 @@
             return;
         }
 
-        const programValues = props.program_indicators.flatMap(indicator => 
-            indicator.disaggregations.map(disagg => ({
+        // Build the values array matching the create payload structure
+        const reportValues = props.program_indicators.map(indicator => {
+            // Calculate total for this indicator from totalable disaggregations
+            const total = indicator.disaggregations
+                .filter(disagg => disagg.pivot?.totalable)
+                .reduce((sum, disagg) => sum + (parseInt(disagg.value) || 0), 0);
+            
+            return {
                 sub_program_id: indicator.sub_program_id || null,
                 program_indicator_id: indicator.id,
-                organizational_indicator_id: null,
-                disaggregation_id: disagg.id,
-                indicator_type: 'program',
-                value: disagg.value || 0
-            }))
-        );
+                total_value: total,
+                disaggregations: indicator.disaggregations.map(disagg => ({
+                    disaggregation_id: disagg.id,
+                    value: parseInt(disagg.value) || 0
+                }))
+            };
+        });
 
         const payload = {
             date: form.value.date.toISOString().split('T')[0],
             barangay_id: form.value.barangay_id,
-            total_returning_clients: form.value.total_returning_clients,
+            total_returning_clients: form.value.total_returning_clients || 0,
             total_clients: form.value.total_clients,
-            values: programValues
+            values: reportValues
         };
 
-        isSubmitting.value = true;
+        console.log('Update payload:', payload);
 
         router.put(`/report/${props.report.id}`, payload, {
-            preserveScroll: true,
             onSuccess: () => {
                 toast.add({
                     severity: 'success',
@@ -267,9 +304,6 @@
                     life: 3000
                 });
                 console.error('Validation errors:', errors);
-            },
-            onFinish: () => {
-                isSubmitting.value = false;
             }
         });
     }

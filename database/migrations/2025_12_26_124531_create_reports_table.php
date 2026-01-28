@@ -26,9 +26,17 @@ return new class extends Migration
             $table->foreignId('report_id')->nullable()->constrained('reports','id');
             $table->foreignId('sub_program_id')->nullable()->constrained('sub_programs','id');
             $table->foreignId('program_indicator_id')->nullable()->constrained('program_indicators','id');
-            $table->foreignId('organizational_indicator_id')->nullable()->constrained('organizational_indicators','id');
-            $table->foreignId('disaggregation_id')->nullable()->constrained('disaggregations','id');
-            $table->string('indicator_type')->nullable();//program,organizational
+            // $table->foreignId('organizational_indicator_id')->nullable()->constrained('organizational_indicators','id');
+            // $table->foreignId('disaggregation_id')->nullable()->constrained('disaggregations','id');
+            // $table->string('indicator_type')->nullable();//program,organizational
+            $table->integer('total_value')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('report_value_disaggregations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('report_value_id')->constrained('report_values','id');
+            $table->foreignId('disaggregation_id')->constrained('disaggregations','id');
             $table->integer('value');
             $table->timestamps();
         });
