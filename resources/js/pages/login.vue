@@ -116,6 +116,7 @@
     // Login function using useForm (recommended)
     const login = () => {
         form.post('/login', {
+            replace:true,
             onSuccess: (response) => {
                 // Redirect is handled automatically by Inertia
                 //console.log(response)

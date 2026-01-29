@@ -10,6 +10,7 @@ import Material from '@primeuix/themes/material';
 import 'primeicons/primeicons.css';
 import Tooltip from 'primevue/tooltip';
 import ToastService from 'primevue/toastservice';
+import { router } from '@inertiajs/vue3'
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
