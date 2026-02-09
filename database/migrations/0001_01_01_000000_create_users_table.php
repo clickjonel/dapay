@@ -25,6 +25,7 @@ return new class extends Migration
             $table->smallInteger('user_level');
             $table->smallInteger('pdoho_province_id')->nullable();
             $table->smallInteger('program_id')->nullable();
+            $table->foreignId('municipality_id')->nullable()->constrained('municipalities','id');
             $table->timestamps();
         });
 

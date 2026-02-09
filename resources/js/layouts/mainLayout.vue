@@ -348,11 +348,11 @@
                     command: () => router.visit('/user'),
                     access_levels: [1,2,3,4]
                 },
-                {
-                    label: 'Register User',
-                    command: () => router.visit('/user/create'),
-                    access_levels: [1,2,3,4]
-                },
+                // {
+                //     label: 'Register User',
+                //     command: () => router.visit('/user/create'),
+                //     access_levels: [1,2,3,4]
+                // },
             ]
         },
 
@@ -381,6 +381,7 @@
         'Indicators':true,
         'Disaggregations':true,
         'Reports':true,
+        'Users':true
     });
 
     const handleLogout = () => {

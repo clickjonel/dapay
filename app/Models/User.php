@@ -29,7 +29,8 @@ class User extends Authenticatable
         'account_status',
         'user_level',
         'pdoho_province_id',
-        'program_id'
+        'program_id',
+        'municipality_id'
 
     ];
 
