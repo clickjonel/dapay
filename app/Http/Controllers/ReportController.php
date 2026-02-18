@@ -50,11 +50,14 @@ class ReportController extends Controller
      */
     public function create()
     {
+        $user = Auth::user();
+
         $program_indicators = ProgramIndicators::with(['disaggregations'])->where('active', true)->has('disaggregations')->get();
         $org_indicators = OrganizationalIndicators::where('active', true)->get();
+
         $barangays = Barangay::query()
-            ->when(Auth::user()->user_level === 5 && Auth::user()->pdoho_province_id !== null, function($query){
-                $query->where('pdoho_province_id', Auth::user()->pdoho_province_id);
+            ->when($user->user_level === 5 && $user->pdoho_province_id, function($query) use ($user) {
+                $query->where('province_id', $user->pdoho_province_id);
             })
             ->get();
 
