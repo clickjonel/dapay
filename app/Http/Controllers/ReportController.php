@@ -52,7 +52,11 @@ class ReportController extends Controller
     {
         $program_indicators = ProgramIndicators::with(['disaggregations'])->where('active', true)->has('disaggregations')->get();
         $org_indicators = OrganizationalIndicators::where('active', true)->get();
-        $barangays = Barangay::get();
+        $barangays = Barangay::query()
+            ->when(Auth::user()->user_level === 5 && Auth::user()->pdoho_province_id !== null, function($query){
+                $query->where('pdoho_province_id', Auth::user()->pdoho_province_id);
+            })
+            ->get();
 
         return Inertia::render('report/create', [
             'program_indicators' => $program_indicators,
