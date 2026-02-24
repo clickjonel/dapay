@@ -23,7 +23,7 @@ class IfugaoUserSeeder extends Seeder
 
         $users->each(function($user){
             // this has multiple records
-            if(!$user->username === 'amyrosepulpog@gmail.com'){
+            if($user->username !== 'amyrosepulpog@gmail.com'){
                 User::create([
                     'username' => $user->username,
                     'password' => '12345',
