@@ -16,14 +16,26 @@ class IfugaoUserSeeder extends Seeder
     {
         $users = DB::connection('dohis')
         ->table('dohis_hrh_user')
+        ->where('account_status','Active')
         ->leftJoin('dohis_hrh_user_assignment', 'dohis_hrh_user.hrh_user_id', '=', 'dohis_hrh_user_assignment.hrh_user_id')
         ->select('dohis_hrh_user.*', 'dohis_hrh_user_assignment.section_id')
         ->where('dohis_hrh_user_assignment.section_id', 7)
         ->get();
 
-        $users->each(function($user){
-            // this has multiple records
-            if($user->username !== 'amyrosepulpog@gmail.com'){
+        $excluded = [
+            'amyrosepulpog@gmail.com',
+            'guinjicnamarietta@gmail.com',
+            'marjoriemhabbiling@gmail.com',
+            'binwagwendyann@gmail.com',
+            'buhyaghoneylei@gmail.com',
+            'benignokristine1@gmail.com',
+            'hylynmaguide04@gmail.com'
+        ];
+
+        $users->each(function ($user) use ($excluded) {
+
+            if (!in_array($user->username, $excluded)) {
+
                 User::create([
                     'username' => $user->username,
                     'password' => '12345',
@@ -37,6 +49,7 @@ class IfugaoUserSeeder extends Seeder
                     'user_level' => 5,
                     'pdoho_province_id' => 3
                 ]);
+
             }
 
         });
